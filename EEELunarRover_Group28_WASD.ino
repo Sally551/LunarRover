@@ -66,42 +66,15 @@ function right()     { var x=new XMLHttpRequest(); x.onreadystatechange=function
 function left()      { var x=new XMLHttpRequest(); x.onreadystatechange=function(){ if(this.readyState==4&&this.status==200) document.getElementById('dir').innerHTML=this.responseText; }; x.open('GET','/left');    x.send(); }\
 function stopRover() { var x=new XMLHttpRequest(); x.onreadystatechange=function(){ if(this.readyState==4&&this.status==200) document.getElementById('dir').innerHTML=this.responseText; }; x.open('GET','/stop');    x.send(); }\
 document.addEventListener('keydown', function(event) {\
-  if (event.key.toLowerCase() === 'w') {\
-    forward();\
-  }\
+  var key = event.key.toLowerCase();\
+  if      (key === 'w') forward();\
+  else if (key === 'a') left();\
+  else if (key === 's') reverse();\
+  else if (key === 'd') right();\
 });\
 document.addEventListener('keyup', function(event) {\
-  if (event.key.toLowerCase() === 'w') {\
-    stopRover();\
-  }\
-});\
-document.addEventListener('keydown', function(event) {\
-  if (event.key.toLowerCase() === 's') {\
-    reverse();\
-  }\
-});\
-document.addEventListener('keyup', function(event) {\
-  if (event.key.toLowerCase() === 's') {\
-    stopRover();\
-  }\
-});\
-document.addEventListener('keydown', function(event) {\
-  if (event.key.toLowerCase() === 'a') {\
-    left();\
-  }\
-});\
-document.addEventListener('keyup', function(event) {\
-  if (event.key.toLowerCase() === 'a') {\
-    stopRover();\
-  }\
-});\
-document.addEventListener('keydown', function(event) {\
-  if (event.key.toLowerCase() === 'd') {\
-    right();\
-  }\
-});\
-document.addEventListener('keyup', function(event) {\
-  if (event.key.toLowerCase() === 'd') {\
+  var key = event.key.toLowerCase();\
+  if (key === 'w' || key === 'a' || key === 's' || key === 'd') {\
     stopRover();\
   }\
 });\
@@ -165,14 +138,14 @@ void moveReverse() {
 void moveRight() {
   Serial.println("RIGHT");
   digitalWrite(leftDIR,  LOW); digitalWrite(leftEN,  HIGH);
-  digitalWrite(rightDIR, LOW); digitalWrite(rightEN, LOW);
+  digitalWrite(rightDIR, HIGH); digitalWrite(rightEN, HIGH);  //if you want it to be rightwheel do not move, change it to LOW LOW
   server.send(200, F("text/plain"), F("RIGHT"));
 }
 
 void moveLeft() {
   Serial.println("LEFT");
-  digitalWrite(leftDIR,  LOW); digitalWrite(leftEN,  LOW);
-  digitalWrite(rightDIR, LOW); digitalWrite(rightEN, HIGH);
+  digitalWrite(leftDIR,  HIGH); digitalWrite(leftEN,  HIGH);  //if you want to be leftwheel do not moce, change it to LOW LOW
+  digitalWrite(rightDIR, LOW); digitalWrite(rightEN, HIGH); 
   server.send(200, F("text/plain"), F("LEFT"));
 }
 
