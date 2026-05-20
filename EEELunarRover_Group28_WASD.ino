@@ -10,6 +10,52 @@ const char pass[] = "exhibition";
 const int groupNumber = 28;
 String uartBuffer = "";
 
+
+const int RADIO_PIN = 2;
+
+// 600 bits/s → 1 bit ≈ 1667 us
+const unsigned int BIT_TIME = 1667;
+
+
+
+
+
+char readUARTChar() {
+  // UART idle 应该是 HIGH
+  // 发现 LOW，说明可能出现 start bit
+  if (digitalRead(RADIO_PIN) == HIGH) {
+    return 0;
+  }
+
+  // 等半个 bit，确认确实处于 start bit 中间
+  delayMicroseconds(BIT_TIME / 2);
+
+  if (digitalRead(RADIO_PIN) != LOW) {
+    return 0;   // 可能只是噪声
+  }
+
+  // 再等 1 个 bit，来到第 1 个 data bit 的中间
+  delayMicroseconds(BIT_TIME);
+
+  byte value = 0;
+
+  // 读取 8 个 data bits，LSB first
+  for (int i = 0; i < 8; i++) {
+    if (digitalRead(RADIO_PIN) == HIGH) {
+      value |= (1 << i);
+    }
+
+    delayMicroseconds(BIT_TIME);
+  }
+
+  // 检查 stop bit，正常应为 HIGH
+  if (digitalRead(RADIO_PIN) != HIGH) {
+    Serial.println("Framing error");
+    return 0;
+  }
+
+  return (char)value;
+}
 // Motor pins
 const int rightDIR = 8;
 const int rightEN  = 9;
@@ -252,6 +298,10 @@ void runTestMode() {
 
 // ================= SETUP =================
 void setup() {
+        // Serial Monitor 用 9600
+  pinMode(RADIO_PIN, INPUT);
+
+  Serial.println("Manual UART test started");
   pinMode(rightDIR, OUTPUT);
   pinMode(rightEN,  OUTPUT);
   pinMode(leftDIR,  OUTPUT);
@@ -330,6 +380,14 @@ void readRadioSignal() {
 }
 // ================= LOOP =================
 void loop() {
+  char c = readUARTChar();
+
+  if (c != 0) {
+    Serial.print("Received: ");
+    Serial.print(c);
+    Serial.print("    ASCII = ");
+    Serial.println((int)c);
+  }
   server.handleClient();
   readRadioSignal();
 
