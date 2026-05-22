@@ -52,10 +52,12 @@ void handleRoot() {
 }
 
 void handleNotFound() {
+  addCors();
   server.send(404, F("text/plain"), F("Not Found"));
 }
 
 void handleSensors() {
+  addCors();
   String json = "{";
   json += "\"age\":\""        + rockAge            + "\",";
   json += "\"ir\":\""         + irRate             + "\",";
@@ -67,42 +69,102 @@ void handleSensors() {
 }
 
 // ================= MOVEMENT FUNCTIONS =================
+
+// Speed settings
+const int FAST_SPEED = 255;   // full speed
+const int SLOW_SPEED = 128;   // slower wheel for diagonal movement
+const int STOP_SPEED = 0;
+
 void moveForward() {
   Serial.println("FORWARD");
-  digitalWrite(leftDIR,  LOW);  digitalWrite(leftEN,  HIGH);
-  digitalWrite(rightDIR, LOW);  digitalWrite(rightEN, HIGH);
+
+  digitalWrite(leftDIR, LOW);
+  analogWrite(leftEN, FAST_SPEED);
+
+  digitalWrite(rightDIR, LOW);
+  analogWrite(rightEN, FAST_SPEED);
+
   addCors();
   server.send(200, F("text/plain"), F("FORWARD"));
 }
 
 void moveReverse() {
   Serial.println("REVERSE");
-  digitalWrite(leftDIR,  HIGH); digitalWrite(leftEN,  HIGH);
-  digitalWrite(rightDIR, HIGH); digitalWrite(rightEN, HIGH);
+
+  digitalWrite(leftDIR, HIGH);
+  analogWrite(leftEN, FAST_SPEED);
+
+  digitalWrite(rightDIR, HIGH);
+  analogWrite(rightEN, FAST_SPEED);
+
   addCors();
   server.send(200, F("text/plain"), F("REVERSE"));
 }
 
 void moveRight() {
   Serial.println("RIGHT");
-  digitalWrite(leftDIR,  LOW); digitalWrite(leftEN,  HIGH);
-  digitalWrite(rightDIR, HIGH); digitalWrite(rightEN, HIGH); 
-  addCors(); //if you want it to be rightwheel do not move, change it to LOW LOW
+
+  // Pivot right: left wheel forward, right wheel reverse
+  digitalWrite(leftDIR, LOW);
+  analogWrite(leftEN, FAST_SPEED);
+
+  digitalWrite(rightDIR, HIGH);
+  analogWrite(rightEN, FAST_SPEED);
+
+  addCors();
   server.send(200, F("text/plain"), F("RIGHT"));
 }
 
 void moveLeft() {
   Serial.println("LEFT");
-  digitalWrite(leftDIR,  HIGH); digitalWrite(leftEN,  HIGH);  //if you want to be leftwheel do not moce, change it to LOW LOW
-  digitalWrite(rightDIR, LOW); digitalWrite(rightEN, HIGH); 
+
+  // Pivot left: left wheel reverse, right wheel forward
+  digitalWrite(leftDIR, HIGH);
+  analogWrite(leftEN, FAST_SPEED);
+
+  digitalWrite(rightDIR, LOW);
+  analogWrite(rightEN, FAST_SPEED);
+
   addCors();
   server.send(200, F("text/plain"), F("LEFT"));
 }
 
+void moveForwardLeft() {
+  Serial.println("FORWARD_LEFT");
+
+  // Smooth forward-left:
+  // left wheel slower, right wheel faster
+  digitalWrite(leftDIR, LOW);
+  analogWrite(leftEN, SLOW_SPEED);
+
+  digitalWrite(rightDIR, LOW);
+  analogWrite(rightEN, FAST_SPEED);
+
+  addCors();
+  server.send(200, F("text/plain"), F("FORWARD_LEFT"));
+}
+
+void moveForwardRight() {
+  Serial.println("FORWARD_RIGHT");
+
+  // Smooth forward-right:
+  // left wheel faster, right wheel slower
+  digitalWrite(leftDIR, LOW);
+  analogWrite(leftEN, FAST_SPEED);
+
+  digitalWrite(rightDIR, LOW);
+  analogWrite(rightEN, SLOW_SPEED);
+
+  addCors();
+  server.send(200, F("text/plain"), F("FORWARD_RIGHT"));
+}
+
 void stopMotors() {
   Serial.println("STOP");
-  digitalWrite(leftEN,  LOW);
-  digitalWrite(rightEN, LOW);
+
+  analogWrite(leftEN, STOP_SPEED);
+  analogWrite(rightEN, STOP_SPEED);
+
   addCors();
   server.send(200, F("text/plain"), F("STOPPED"));
 }
@@ -244,6 +306,8 @@ void setup() {
   server.on(F("/right"),   moveRight);
   server.on(F("/left"),    moveLeft);
   server.on(F("/stop"),    stopMotors);
+  server.on(F("/forwardleft"), moveForwardLeft);
+  server.on(F("/forwardright"), moveForwardRight);
   server.on(F("/sensors"), handleSensors);
   server.onNotFound(handleNotFound);
 
