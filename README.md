@@ -1,1 +1,1 @@
-The lunar spilt version is the software that works for split website and API. Rover-console is the one that has refresh automatically every 3 seconds.
+The lunar spilt version is the software that works for split website and API. Rover-console is the one that has refresh automatically every 3 seconds, the corresponding auto-reset button code is auto-reset.ino
