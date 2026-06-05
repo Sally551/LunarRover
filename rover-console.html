@@ -617,7 +617,7 @@ async function pollSensors(){
     const magnetic = d.magnetic ?? "--";
     const type = d.type ?? "unknown";
 
-    document.getElementById("age").textContent = age;
+    document.getElementById("age").textContent = parseInt(age.substring(1, 4))/100 + " Bln";
     document.getElementById("ir").textContent = ir;
     document.getElementById("ultrasonic").textContent = ultrasonic;
     document.getElementById("magnetic").textContent = magnetic;
