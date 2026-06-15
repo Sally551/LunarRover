@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EEE Rover Console</title>
+
+<style>
+:root{
+  --bg0:#05070d;
+  --bg1:#0a1020;
+  --card:#101827dd;
+  --card2:#07111fee;
+  --line:#243145;
+  --text:#e8f1ff;
+  --soft:#8da2bd;
+  --cyan:#36d6ff;
+  --blue:#4f8cff;
+  --green:#40f29b;
+  --yellow:#ffd166;
+  --red:#ff5c7a;
+  --shadow:rgba(0,0,0,.42);
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  background:
+    radial-gradient(circle at 20% 10%,rgba(54,214,255,.18),transparent 30%),
+    radial-gradient(circle at 85% 20%,rgba(79,140,255,.16),transparent 26%),
+    linear-gradient(145deg,var(--bg0),var(--bg1));
+  color:var(--text);
+  font-family:Inter,Arial,Helvetica,sans-serif;
+}
+
+body{padding:22px}
+
+.shell{
+  max-width:1120px;
+  margin:0 auto;
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:20px;
+}
+
+.brand h1{
+  margin:0;
+  font-size:34px;
+  line-height:1;
+  letter-spacing:.5px;
+}
+
+.brand p{
+  margin:8px 0 0;
+  color:var(--soft);
+  font-size:14px;
+}
+
+.status{
+  min-width:156px;
+  text-align:center;
+  border:1px solid var(--line);
+  background:rgba(7,17,31,.72);
+  border-radius:999px;
+  padding:12px 16px;
+  font-weight:900;
+  letter-spacing:.6px;
+  color:var(--red);
+  box-shadow:0 12px 28px var(--shadow);
+}
+
+.status.ok{
+  color:var(--green);
+  box-shadow:0 0 28px rgba(64,242,155,.16);
+}
+
+.dashboard{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:18px;
+}
+
+.panel{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border-radius:30px;
+  padding:22px;
+  box-shadow:0 24px 70px var(--shadow), inset 0 1px 0 rgba(255,255,255,.04);
+  position:relative;
+  overflow:hidden;
+  margin-bottom:18px;
+}
+
+.panel:before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  background:radial-gradient(circle at 50% 0,rgba(54,214,255,.12),transparent 34%);
+  pointer-events:none;
+}
+
+.panel > *{
+  position:relative;
+}
+
+.panelTitle{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.panelTitle h2{
+  margin:0;
+  font-size:15px;
+  letter-spacing:2px;
+  color:#cbd7e7;
+  text-transform:uppercase;
+}
+
+.pill{
+  color:var(--soft);
+  font-size:12px;
+  border:1px solid var(--line);
+  padding:7px 10px;
+  border-radius:999px;
+  background:#040b14aa;
+}
+
+.directionBox{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:14px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:18px;
+  background:#040b14aa;
+  margin-bottom:24px;
+}
+
+.label{
+  color:var(--soft);
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+}
+
+#direction{
+  margin-top:6px;
+  font-size:36px;
+  font-weight:1000;
+  letter-spacing:1px;
+  color:var(--green);
+}
+
+.orb{
+  width:62px;
+  height:62px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#fff,var(--green) 18%,#087e4b 58%,#04110c 100%);
+  box-shadow:0 0 26px rgba(64,242,155,.42), inset 0 0 14px rgba(255,255,255,.28);
+}
+
+.orb.stop{
+  background:radial-gradient(circle at 35% 30%,#fff,var(--red) 18%,#79182d 58%,#14040a 100%);
+  box-shadow:0 0 26px rgba(255,92,122,.42), inset 0 0 14px rgba(255,255,255,.28);
+}
+
+.controller{
+  display:flex;
+  justify-content:center;
+  margin:12px 0 8px;
+}
+
+.keys{
+  display:grid;
+  grid-template-columns:110px 110px 110px;
+  grid-template-rows:94px 94px 94px;
+  gap:14px;
+}
+
+.key{
+  border:none;
+  border-radius:26px;
+  cursor:pointer;
+  user-select:none;
+  color:var(--text);
+  background:linear-gradient(180deg,#1c2a3f,#0a1320);
+  box-shadow:
+    0 10px 0 #020611,
+    0 18px 35px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  border:1px solid #33465f;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  transition:.08s ease;
+}
+
+.key .letter{
+  font-size:36px;
+  font-weight:1000;
+  line-height:1;
+}
+
+.key .action{
+  margin-top:8px;
+  color:var(--soft);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+}
+
+.key:active,.key.active{
+  transform:translateY(7px);
+  box-shadow:
+    0 3px 0 #020611,
+    0 0 30px rgba(54,214,255,.32),
+    inset 0 1px 0 rgba(255,255,255,.08);
+  border-color:var(--cyan);
+}
+
+.key.stop{
+  background:linear-gradient(180deg,#ff4f6d,#7d1028);
+  border-color:#ff7e95;
+}
+
+.key.stop:active,.key.stop.active{
+  box-shadow:
+    0 3px 0 #020611,
+    0 0 30px rgba(255,92,122,.36);
+}
+
+.blank{
+  visibility:hidden;
+}
+
+.note{
+  text-align:center;
+  color:var(--soft);
+  font-size:13px;
+  margin-top:22px;
+}
+
+.ipbar{
+  margin-top:22px;
+  display:flex;
+  gap:10px;
+}
+
+.ipbar input{
+  flex:1;
+  border:1px solid var(--line);
+  background:#030914;
+  color:var(--text);
+  border-radius:16px;
+  padding:13px 14px;
+  outline:none;
+  font-size:14px;
+}
+
+.ipbar button{
+  border:none;
+  background:linear-gradient(180deg,var(--cyan),var(--blue));
+  color:#03101b;
+  font-weight:1000;
+  border-radius:16px;
+  padding:0 18px;
+  cursor:pointer;
+}
+
+.sensorGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.sensor{
+  border:1px solid var(--line);
+  background:#040b14aa;
+  border-radius:24px;
+  padding:18px;
+  min-height:150px;
+}
+
+.sensorTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.icon{
+  width:42px;
+  height:42px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  font-size:22px;
+  background:rgba(54,214,255,.08);
+  border:1px solid rgba(54,214,255,.18);
+}
+
+.value{
+  font-size:33px;
+  font-weight:1000;
+  margin-top:18px;
+  word-break:break-word;
+}
+
+.unit{
+  color:var(--soft);
+  font-size:13px;
+  margin-top:4px;
+}
+
+.meter{
+  height:9px;
+  border-radius:999px;
+  background:#020814;
+  overflow:hidden;
+  margin-top:18px;
+}
+
+.fill{
+  height:100%;
+  width:12%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--cyan),var(--green));
+}
+
+.classificationGrid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+.rockAll,
+.rockIRUS,
+.rockIRMAG,
+.rockUSMAG{
+  border:1px solid var(--line);
+  background:#040b14aa;
+  border-radius:24px;
+  padding:20px;
+  text-align:center;
+}
+
+.rockAll .value,
+.rockIRUS .value,
+.rockIRMAG .value,
+.rockUSMAG .value{
+  color:var(--yellow);
+  margin-top:10px;
+  font-size:28px;
+}
+
+
+.rockIRUS .value{
+  color:var(--red);
+  margin-top:10px;
+  font-size:28px;
+}
+
+.rockIRMAG .value{
+  color:var(--green);
+  margin-top:10px;
+  font-size:28px;
+}
+
+.rockUSMAG .value{
+  color:var(--blue);
+  margin-top:10px;
+  font-size:28px;
+}
+
+.resetBtn{
+  width:100%;
+  margin-top:16px;
+  padding:14px;
+  border:1px solid var(--red);
+  background:#1a0408aa;
+  color:var(--red);
+  border-radius:16px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  cursor:pointer;
+  text-transform:uppercase;
+  transition:.1s ease;
+}
+
+.resetBtn:hover{
+  background:#2a060caa;
+  box-shadow:0 0 20px rgba(255,92,122,.2);
+}
+
+.resetBtn:active{
+  transform:scale(.98);
+}
+
+
+.flipBtn{
+  width:100%;
+  margin-top:16px;
+  padding:14px;
+  border:1px solid var(--blue);
+  background:#1a0408aa;
+  color:var(--blue);
+  border-radius:16px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  cursor:pointer;
+  text-transform:uppercase;
+  transition:.1s ease;
+}
+
+.flipBtn:hover{
+  background:#2a060caa;
+  box-shadow:0 0 20px rgba(255,92,122,.2);
+}
+
+.flipBtn:active{
+  transform:scale(.98);
+}
+
+.log{
+  margin-top:16px;
+  height:136px;
+  overflow:auto;
+  border:1px solid var(--line);
+  background:#030914;
+  border-radius:20px;
+  padding:12px;
+  font-family:Consolas,monospace;
+  font-size:12px;
+  color:#c6d4e7;
+}
+
+.log div{
+  padding:4px 0;
+  border-bottom:1px solid rgba(141,162,189,.09);
+}
+
+.log span{
+  color:var(--cyan);
+}
+
+@media(max-width:900px){
+  body{padding:12px}
+  .top{flex-direction:column;align-items:flex-start}
+  .dashboard{grid-template-columns:1fr}
+  .keys{grid-template-columns:88px 88px 88px;grid-template-rows:80px 80px 80px;gap:11px}
+  .key .letter{font-size:30px}
+  .sensorGrid{grid-template-columns:1fr}
+  .classificationGrid{grid-template-columns:1fr}
+  #direction{font-size:30px}
+}
+</style>
+</head>
+
+<body>
+<div class="shell">
+
+  <header class="top">
+    <div class="brand">
+      <h1>Rover Console</h1>
+      <p>WASD control + four live sensor values</p>
+    </div>
+    <div id="connection" class="status">Offline</div>
+  </header>
+
+  <main class="dashboard">
+
+    <section class="panel">
+      <div class="panelTitle">
+        <h2>Drive</h2>
+        <div class="pill">Hold to move</div>
+      </div>
+
+      <div class="directionBox">
+        <div>
+          <div class="label">Direction</div>
+          <div id="direction">STOP</div>
+        </div>
+        <div id="orb" class="orb stop"></div>
+      </div>
+
+      <div class="controller">
+        <div class="keys">
+
+          <button class="key" data-dir="forwardleft" id="btn-forwardleft">
+            <div class="letter">Q</div>
+            <div class="action">Fwd Left</div>
+          </button>
+
+          <button class="key" data-dir="forward" id="btn-forward">
+            <div class="letter">W</div>
+            <div class="action">Forward</div>
+          </button>
+
+          <button class="key" data-dir="forwardright" id="btn-forwardright">
+            <div class="letter">E</div>
+            <div class="action">Fwd Right</div>
+          </button>
+
+          <button class="key" data-dir="left" id="btn-left">
+            <div class="letter">A</div>
+            <div class="action">Left</div>
+          </button>
+
+          <button class="key stop" id="btn-stop">
+            <div class="letter">●</div>
+            <div class="action">Stop</div>
+          </button>
+
+          <button class="key" data-dir="right" id="btn-right">
+            <div class="letter">D</div>
+            <div class="action">Right</div>
+          </button>
+
+          <div class="blank"></div>
+
+          <button class="key" data-dir="reverse" id="btn-reverse">
+            <div class="letter">S</div>
+            <div class="action">Reverse</div>
+          </button>
+
+          <div class="blank"></div>
+
+        </div>
+      </div>
+
+      <div class="note">Use keyboard W/A/S/D or press the on-screen keys. Releasing stops the rover.</div>
+
+      <div class="ipbar">
+        <input id="apiInput" value="http://192.168.0.29" />
+        <button onclick="saveAPI()">SET IP</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panelTitle">
+        <h2>Sensors</h2>
+        <div class="pill">/sensors</div>
+      </div>
+
+      <div class="sensorGrid">
+
+        <div class="sensor">
+          <div class="sensorTop">
+            <div class="label">Age</div>
+            <div class="icon">⏱</div>
+          </div>
+          <div class="value" id="age">--</div>
+          <div class="unit">rock age</div>
+          <div class="meter"><div class="fill" id="ageFill"></div></div>
+        </div>
+
+        <div class="sensor">
+          <div class="sensorTop">
+            <div class="label">IR Rate</div>
+            <div class="icon">λ</div>
+          </div>
+          <div class="value"><span id="ir">--</span></div>
+          <div class="unit">pulses / second</div>
+          <div class="meter"><div class="fill" id="irFill"></div></div>
+        </div>
+
+        <div class="sensor">
+          <div class="sensorTop">
+            <div class="label">Ultrasonic</div>
+            <div class="icon">≈</div>
+          </div>
+          <div class="value" id="ultrasonic">--</div>
+          <div class="unit">presence</div>
+          <div class="meter"><div class="fill" id="usFill"></div></div>
+        </div>
+
+        <div class="sensor">
+          <div class="sensorTop">
+            <div class="label">Magnetic</div>
+            <div class="icon">⌁</div>
+          </div>
+          <div class="value" id="magnetic">--</div>
+          <div class="unit">field status</div>
+          <div class="meter"><div class="fill" id="magFill"></div></div>
+        </div>
+
+      </div>
+
+      <button class="flipBtn" id="flipButton" onclick="flipMagnet()">↓ Flip Magnet</button>
+      <button class="resetBtn" onclick="resetSensors()">⟳ New Rock — Reset Sensors</button>
+    </section>
+
+  </main>
+
+  <section class="panel">
+    <div class="panelTitle">
+      <h2>Classification</h2>
+      <div class="pill">/classification</div>
+    </div>
+
+    <div class="classificationGrid">
+
+      <div class="rockAll">
+        <div class="label">Rock Type IR+US+MAG</div>
+        <div class="value" id="rockType1">UNKNOWN</div>
+      </div>
+
+      <div class="rockIRUS">
+        <div class="label">Rock Type IR+US</div>
+        <div class="value" id="rockType2">UNKNOWN</div>
+      </div>
+
+      <div class="rockIRMAG">
+        <div class="label">Rock Type IR+MAG</div>
+        <div class="value" id="rockType3">UNKNOWN</div>
+      </div>
+
+      <div class="rockUSMAG">
+        <div class="label">Rock Type US+MAG</div>
+        <div class="value" id="rockType4">UNKNOWN</div>
+      </div>
+
+    </div>
+
+    <div class="log" id="log">
+      <div><span>--:--</span> UI started</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+let API = localStorage.getItem("eee_rover_api") || "http://192.168.0.29";
+
+const apiInput = document.getElementById("apiInput");
+if(apiInput){
+  apiInput.value = API;
+}
+
+let activeDir = "";
+let keyStack = [];
+let commandId = 0;
+var flip = false;
+
+const buttonId = {
+  forward:"btn-forward",
+  forwardleft:"btn-forwardleft",
+  forwardright:"btn-forwardright",
+  reverse:"btn-reverse",
+  left:"btn-left",
+  right:"btn-right"
+};
+
+const keyMap = {
+  q:"forwardleft",
+  Q:"forwardleft",
+  e:"forwardright",
+  E:"forwardright",
+  w:"forward",
+  W:"forward",
+  ArrowUp:"forward",
+  s:"reverse",
+  S:"reverse",
+  ArrowDown:"reverse",
+  a:"left",
+  A:"left",
+  ArrowLeft:"left",
+  d:"right",
+  D:"right",
+  ArrowRight:"right"
+};
+
+
+function stamp(){
+  const d = new Date();
+  return String(d.getMinutes()).padStart(2,"0") + ":" + String(d.getSeconds()).padStart(2,"0");
+}
+
+function log(msg){
+  const box = document.getElementById("log");
+  const row = document.createElement("div");
+  row.innerHTML = "<span>" + stamp() + "</span> " + msg;
+  box.prepend(row);
+
+  while(box.children.length > 22){
+    box.removeChild(box.lastChild);
+  }
+}
+
+function setConnection(ok){
+  const c = document.getElementById("connection");
+  c.textContent = ok ? "Online" : "Offline";
+  c.className = ok ? "status ok" : "status";
+}
+
+function setDirection(text){
+  const clean = String(text || "STOP").trim().toUpperCase();
+  document.getElementById("direction").textContent = clean;
+
+  document.getElementById("orb").className =
+    (clean === "STOP" || clean === "STOPPED") ? "orb stop" : "orb";
+}
+
+function setActive(dir){
+  document.querySelectorAll(".key").forEach(k => k.classList.remove("active"));
+
+  if(dir && buttonId[dir]){
+    document.getElementById(buttonId[dir]).classList.add("active");
+  }
+}
+
+async function request(path){
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 800);
+
+  try{
+    const r = await fetch(API + "/" + path, {
+      cache:"no-store",
+      signal:controller.signal
+    });
+    const t = await r.text();
+    setConnection(true);
+    return t;
+  }catch(e){
+    setConnection(false);
+    log("failed: /" + path);
+    return null;
+  }finally{
+    clearTimeout(timeout);
+  }
+}
+
+function startDrive(dir){
+  if(activeDir === dir) return;
+
+  activeDir = dir;
+  const id = ++commandId;
+
+  setActive(dir);
+  setDirection(dir);
+  log("drive " + dir);
+
+  request(dir).then(reply => {
+    if(id !== commandId) return;
+    if(reply) setDirection(reply);
+  });
+}
+
+function stopDrive(){
+  activeDir = "";
+  keyStack = [];
+
+  const id = ++commandId;
+
+  setActive("");
+  setDirection("STOP");
+  log("stop");
+
+  request("stop").then(reply => {
+    if(id !== commandId) return;
+    setDirection(reply || "STOP");
+  });
+}
+
+function applyKeyStack(){
+  if(keyStack.length === 0){
+    stopDrive();
+  }else{
+    startDrive(keyStack[keyStack.length - 1]);
+  }
+}
+
+document.querySelectorAll("[data-dir]").forEach(btn => {
+  const dir = btn.dataset.dir;
+
+  btn.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    startDrive(dir);
+  });
+
+  btn.addEventListener("pointerup", e => {
+    e.preventDefault();
+    stopDrive();
+  });
+
+  btn.addEventListener("pointerleave", e => {
+    if(activeDir === dir){
+      stopDrive();
+    }
+  });
+
+  btn.addEventListener("pointercancel", stopDrive);
+});
+
+document.getElementById("btn-stop").addEventListener("click", stopDrive);
+
+document.addEventListener("keydown", e => {
+  const dir = keyMap[e.key];
+  if(!dir || e.repeat) return;
+
+  e.preventDefault();
+
+  keyStack = keyStack.filter(x => x !== dir);
+  keyStack.push(dir);
+
+  applyKeyStack();
+});
+
+document.addEventListener("keyup", e => {
+  const dir = keyMap[e.key];
+  if(!dir) return;
+
+  e.preventDefault();
+
+  keyStack = keyStack.filter(x => x !== dir);
+
+  applyKeyStack();
+});
+
+window.addEventListener("blur", stopDrive);
+
+function fill(id, value, max){
+  const n = Number(value);
+  const pct = Number.isFinite(n) ? Math.max(8, Math.min(100, n / max * 100)) : 8;
+  document.getElementById(id).style.width = pct + "%";
+}
+
+function formatAge(age){
+  if(age === "--" || age === null || age === undefined){
+    return "--";
+  }
+
+  const s = String(age);
+
+  if(s.startsWith("#") && s.length >= 4){
+    return parseInt(s.substring(1,4)) / 100 + " Bln";
+  }
+
+  const n = Number(s);
+  if(Number.isFinite(n)){
+    return n / 100 + " Bln";
+  }
+
+  return "--";
+}
+
+let sensorRequestRunning = false;
+
+async function pollSensors(){
+  if(sensorRequestRunning) return;
+  sensorRequestRunning = true;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 800);
+
+  try{
+    const r = await fetch(API + "/sensors", {
+      cache:"no-store",
+      signal:controller.signal
+    });
+    const d = await r.json();
+
+    setConnection(true);
+
+    const age = d.age ?? "--";
+    const ir = d.ir ?? "--";
+    const ultrasonic = d.ultrasonic ?? "--";
+    let reading = d.magnetic ?? "--";
+    
+    let magnetic;
+
+    if (reading > 500){
+      magnetic = "up";
+    }else{
+      magnetic = "down";
+    }
+    
+    if (flip) {
+      magnetic = String(magnetic).toLowerCase() === "up" ? "down" : "up";
+    }
+
+
+    const highIR = parseInt(ir) > 400;
+    const hasUS = String(ultrasonic).toLowerCase() === "yes";
+    const fieldUp = String(magnetic).toLowerCase() === "up";
+
+    document.getElementById("age").textContent = formatAge(age);
+    document.getElementById("ir").textContent = ir;
+    document.getElementById("ultrasonic").textContent = ultrasonic;
+    document.getElementById("magnetic").textContent = magnetic + " " + reading;
+
+    document.getElementById("rockType1").textContent = IRUSMAG(highIR, hasUS, fieldUp).toUpperCase();
+    document.getElementById("rockType2").textContent = IRUS(highIR, hasUS).toUpperCase();
+    document.getElementById("rockType3").textContent = IRMAG(highIR, fieldUp).toUpperCase();
+    document.getElementById("rockType4").textContent = USMAG(hasUS, fieldUp).toUpperCase();
+
+    fill("ageFill", parseFloat(age), 5);
+    fill("irFill", parseFloat(ir), 600);
+    fill("usFill", String(ultrasonic).toLowerCase() === "unknown" ? NaN : 1, 1);
+    fill("magFill", String(magnetic).toLowerCase() === "unknown" ? NaN : 1, 1);
+
+  }catch(e){
+    setConnection(false);
+  }finally{
+    clearTimeout(timeout);
+    sensorRequestRunning = false;
+  }
+}
+
+function IRUSMAG(IR, US, MAG){
+  if(IR && US && !MAG) return "Basaltoid";
+  if(!IR && !US && !MAG) return "Gravion";
+  if(!IR && US && MAG) return "Regolix";
+  if(IR && !US && MAG) return "Lunarite";
+  return "NA";
+}
+
+function IRUS(IR, US){
+  if(IR && US) return "Basaltoid";
+  if(!IR && !US) return "Gravion";
+  if(!IR && US) return "Regolix";
+  if(IR && !US) return "Lunarite";
+  return "NA";
+}
+
+function IRMAG(IR, MAG){
+  if(IR && !MAG) return "Basaltoid";
+  if(!IR && !MAG) return "Gravion";
+  if(!IR && MAG) return "Regolix";
+  if(IR && MAG) return "Lunarite";
+  return "NA";
+}
+
+function USMAG(US, MAG){
+  if(US && !MAG) return "Basaltoid";
+  if(!US && !MAG) return "Gravion";
+  if(US && MAG) return "Regolix";
+  if(!US && MAG) return "Lunarite";
+  return "NA";
+}
+
+async function resetSensors(){
+  const reply = await request("reset");
+
+  if(reply){
+    document.getElementById("age").textContent = "--";
+    document.getElementById("ir").textContent = "--";
+    document.getElementById("ultrasonic").textContent = "--";
+    document.getElementById("magnetic").textContent = "--";
+
+    document.getElementById("rockType1").textContent = "UNKNOWN";
+    document.getElementById("rockType2").textContent = "UNKNOWN";
+    document.getElementById("rockType3").textContent = "UNKNOWN";
+    document.getElementById("rockType4").textContent = "UNKNOWN";
+
+    fill("ageFill", NaN, 1);
+    fill("irFill", NaN, 1);
+    fill("usFill", NaN, 1);
+    fill("magFill", NaN, 1);
+
+    log("sensors reset — ready for new rock");
+  }
+}
+
+
+function flipMagnet(){
+  flip = !flip;
+  document.getElementById("flipButton").textContent = flip ? "↑ Flip Magnet" : "↓ Flip Magnet";
+}
+
+function saveAPI(){
+  const apiInput = document.getElementById("apiInput");
+  if(!apiInput) return;
+
+  API = apiInput.value.trim().replace(/\/$/,"");
+  localStorage.setItem("eee_rover_api", API);
+
+  log("API = " + API);
+  pollSensors();
+}
+
+setInterval(pollSensors, 500);
+pollSensors();
+</script>
+
+</body>
+</html>
